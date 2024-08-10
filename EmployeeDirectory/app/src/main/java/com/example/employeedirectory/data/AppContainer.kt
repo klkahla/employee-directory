@@ -8,7 +8,6 @@ interface AppContainer {
     val employeeRepository: EmployeeRepository
 }
 
-
 class DefaultAppContainer : AppContainer {
     private val BASE_URL = "https://s3.amazonaws.com/sq-mobile-interview/"
 
