@@ -1,6 +1,7 @@
 [versions]
 agp = "8.5.2"
 kotlin = "1.9.0"
+serialization = "2.0.0"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -9,9 +10,13 @@ lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.04.01"
 retrofit2 = "2.9.0"
+converterScalars = "2.9.0"
+kotlinxSerializationJson = "1.5.1"
 
 [libraries]
-retrofit2 = { module "com.squareup.retrofit2:retrofit", version.ref = "retrofit2"}
+retrofit2 = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit2"}
+converter-scalars = { module = "com.squareup.retrofit2:converter-scalars", version.ref = "converterScalars"}
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson"}
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -30,4 +35,5 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "serialization" }
 
