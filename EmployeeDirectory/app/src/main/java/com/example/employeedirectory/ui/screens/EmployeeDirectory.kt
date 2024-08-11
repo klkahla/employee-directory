@@ -58,16 +58,17 @@ fun EmployeeDirectory(modifier: Modifier = Modifier) {
         ) {
             val employeeViewModel: EmployeeViewModel = viewModel(factory = EmployeeViewModel.Factory)
             EmployeeList(
-                employeeUIState = employeeViewModel.employeeUIState
+                employeeUIState = employeeViewModel.employeeUIState,
+                retryAction = employeeViewModel::getEmployees
             )
         }
     }
 }
 
 @Composable
-fun EmployeeList(employeeUIState: EmployeeUIState) {
+fun EmployeeList(employeeUIState: EmployeeUIState, retryAction: () -> Unit, modifier: Modifier = Modifier) {
     when(employeeUIState) {
-        is EmployeeUIState.Error -> ErrorScreen()
+        is EmployeeUIState.Error -> ErrorScreen(retryAction)
         is EmployeeUIState.Loading -> LoadingScreen()
         is EmployeeUIState.Success -> ResultScreen(employeeUIState.employeeList)
     }
@@ -124,14 +125,14 @@ fun ResultScreen(employees: List<Employee>, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ErrorScreen(modifier: Modifier = Modifier) {
+fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(stringResource(R.string.loading_failed))
-        Button(onClick = { }) {
+        Button(onClick = { retryAction() }) {
             Text(stringResource(R.string.retry))
         }
     }
@@ -161,7 +162,7 @@ fun LoadingScreenPreview() {
 @Composable
 fun ErrorScreenPreview() {
     EmployeeDirectoryTheme {
-        ErrorScreen(Modifier.fillMaxSize())
+        ErrorScreen({}, Modifier.fillMaxSize())
     }
 }
 
