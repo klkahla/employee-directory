@@ -39,6 +39,16 @@ import com.example.employeedirectory.R
 import com.example.employeedirectory.model.Employee
 import com.example.employeedirectory.ui.theme.EmployeeDirectoryTheme
 
+/**
+ * TODO List:
+ *      1. Add UI/UX for empty employee list returned
+ *      2. Add UI/UX to refresh the list of employees
+ *      3. Ensure list doesn't refresh when phone orientation is turned
+ *      4. Add logic to download images
+ *      5. Ensure caching strategy for image loads (aka phone rotate should reload image. Same with app start)
+ *      6. Unit tests for backend work at minimum
+ */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeDirectory(modifier: Modifier = Modifier) {
@@ -122,7 +132,7 @@ fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = employee.phoneNumber,
+                    text = employee.phoneNumber.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Start

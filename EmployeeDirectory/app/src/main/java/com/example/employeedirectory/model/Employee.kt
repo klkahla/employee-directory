@@ -27,14 +27,14 @@ data class Employee (
     @SerialName("full_name")
     val fullName: String = "",
     @SerialName("phone_number")
-    val phoneNumber: String = "",
+    val phoneNumber: String? = "",
     @SerialName("email_address")
     val emailAddress: String = "",
-    val biography: String = "",
+    val biography: String? = "",
     @SerialName("photo_url_small")
-    val photoURLSm: String = "",
+    val photoURLSm: String? = "",
     @SerialName("photo_url_large")
-    val photoURLLg: String = "",
+    val photoURLLg: String? = "",
     val team: String = "",
     @SerialName("employee_type")
     val employeeType: String = ""
