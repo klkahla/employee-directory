@@ -4,15 +4,20 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -77,33 +82,61 @@ fun EmployeeList(employeeUIState: EmployeeUIState, retryAction: () -> Unit, modi
 @Composable
 fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier.padding(8.dp),
-        shape = RoundedCornerShape(8.dp)
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
+        elevation = CardDefaults.cardElevation(4.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = employee.fullName,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_medium)),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Start
-            )
-            Text(
-                text = employee.phoneNumber,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Justify,
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
-            )
-            Text(
-                text = employee.emailAddress,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Justify,
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
-            )
+        Row(
+            modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+//            AsyncImage(
+//                model = employee.photoURLSm,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .size(64.dp)
+//                    .clip(CircleShape)
+//                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+//                contentScale = ContentScale.Crop
+//            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = employee.fullName,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    text = employee.team,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = employee.phoneNumber,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Start
+                )
+                Text(
+                    text = employee.emailAddress,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Start
+                )
+            }
         }
     }
+
 }
 
 @Composable
@@ -175,6 +208,7 @@ fun ResultScreenPreview() {
                 "$it",
                 "Lorem ipsum - $it",
                 "208-308-3838",
+                team = "Customer Support",
                 emailAddress = "katykahla@gmail.com",
                 biography = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\" +\n" +
                         "                        \" eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad\" +\n" +
