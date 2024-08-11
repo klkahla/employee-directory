@@ -42,9 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
-import coil.request.ErrorResult
 import coil.request.ImageRequest
-import coil.request.SuccessResult
 import com.example.employeedirectory.R
 import com.example.employeedirectory.model.Employee
 import com.example.employeedirectory.ui.theme.EmployeeDirectoryTheme
@@ -52,9 +50,7 @@ import kotlinx.coroutines.Dispatchers
 
 /**
  * TODO List:
- *      1. Add UI/UX for empty employee list returned
  *      2. Add UI/UX to refresh the list of employees
- *      3. Ensure list doesn't refresh when phone orientation is turned
  */
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,6 +90,7 @@ fun EmployeeList(employeeUIState: EmployeeUIState, retryAction: () -> Unit, modi
         is EmployeeUIState.Error -> ErrorScreen(retryAction)
         is EmployeeUIState.Loading -> LoadingScreen()
         is EmployeeUIState.Success -> ResultScreen(employeeUIState.employeeList)
+        is EmployeeUIState.Empty -> EmptyScreen()
     }
 }
 
@@ -192,6 +189,25 @@ fun ResultScreen(employees: List<Employee>, modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun EmptyScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = stringResource(R.string.no_employees_found),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
 fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
@@ -230,6 +246,16 @@ fun LoadingScreenPreview() {
 fun ErrorScreenPreview() {
     EmployeeDirectoryTheme {
         ErrorScreen({}, Modifier.fillMaxSize())
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmptyScreenPreview() {
+    EmployeeDirectoryTheme {
+        EmptyScreen(
+            Modifier.fillMaxSize()
+        )
     }
 }
 

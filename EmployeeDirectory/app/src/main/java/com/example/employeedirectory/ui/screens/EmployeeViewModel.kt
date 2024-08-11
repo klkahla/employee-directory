@@ -17,6 +17,7 @@ import java.io.IOException
 
 sealed interface EmployeeUIState {
     data class Success(val employeeList: List<Employee>) : EmployeeUIState
+    object Empty : EmployeeUIState
     object Error : EmployeeUIState
     object Loading : EmployeeUIState
 }
@@ -34,7 +35,12 @@ class EmployeeViewModel(private val employeeRepository: EmployeeRepository) : Vi
         viewModelScope.launch {
             employeeUIState = EmployeeUIState.Loading
             employeeUIState = try {
-                EmployeeUIState.Success(employeeRepository.getEmployees())
+                val employees = employeeRepository.getEmployees()
+                if (employees.isEmpty()) {
+                    EmployeeUIState.Empty
+                } else {
+                    EmployeeUIState.Success(employees)
+                }
             } catch (e: IOException) {
                 EmployeeUIState.Error
             } catch (e: HttpException) {
