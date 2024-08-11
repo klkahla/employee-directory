@@ -1,6 +1,7 @@
 package com.example.employeedirectory.ui.screens
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -27,6 +29,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,18 +40,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ErrorResult
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.example.employeedirectory.R
 import com.example.employeedirectory.model.Employee
 import com.example.employeedirectory.ui.theme.EmployeeDirectoryTheme
+import kotlinx.coroutines.Dispatchers
 
 /**
  * TODO List:
  *      1. Add UI/UX for empty employee list returned
  *      2. Add UI/UX to refresh the list of employees
  *      3. Ensure list doesn't refresh when phone orientation is turned
- *      4. Add logic to download images
- *      5. Ensure caching strategy for image loads (aka phone rotate should reload image. Same with app start)
- *      6. Unit tests for backend work at minimum
  */
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,6 +99,22 @@ fun EmployeeList(employeeUIState: EmployeeUIState, retryAction: () -> Unit, modi
 
 @Composable
 fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
+    // Build an ImageRequest with Coil
+    val listener = object : ImageRequest.Listener {
+    }
+    val imageRequest = ImageRequest.Builder(LocalContext.current)
+        .data(employee.photoURLSm)
+        .listener(listener)
+        .dispatcher(Dispatchers.IO)
+        .memoryCacheKey(employee.photoURLSm)
+        .diskCacheKey(employee.photoURLSm)
+        .placeholder(R.drawable.loading_img)
+        .error(R.drawable.ic_broken_image)
+        .fallback(R.drawable.ic_launcher_foreground)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .build()
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -105,15 +129,15 @@ fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)),
             verticalAlignment = Alignment.CenterVertically
         ) {
-//            AsyncImage(
-//                model = employee.photoURLSm,
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .size(64.dp)
-//                    .clip(CircleShape)
-//                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
-//                contentScale = ContentScale.Crop
-//            )
+            AsyncImage(
+                model = imageRequest,
+                contentDescription = employee.fullName,
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                contentScale = ContentScale.Crop
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Column(
                 verticalArrangement = Arrangement.SpaceBetween
