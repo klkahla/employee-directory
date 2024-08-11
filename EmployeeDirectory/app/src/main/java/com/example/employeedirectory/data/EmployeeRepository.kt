@@ -11,6 +11,6 @@ class DefaultEmployeeRepository(
     private val apiService: ApiService
 ) : EmployeeRepository {
     override suspend fun getEmployees(): List<Employee> {
-        return apiService.getEmployees()
+        return apiService.getEmployees().employees
     }
 }

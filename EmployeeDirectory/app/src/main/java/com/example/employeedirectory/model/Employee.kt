@@ -31,4 +31,11 @@ data class Employee (
     @SerialName("email_address")
     val emailAddress: String = "",
     val biography: String = "",
+    @SerialName("photo_url_small")
+    val photoURLSm: String = "",
+    @SerialName("photo_url_large")
+    val photoURLLg: String = "",
+    val team: String = "",
+    @SerialName("employee_type")
+    val employeeType: String = ""
 )
