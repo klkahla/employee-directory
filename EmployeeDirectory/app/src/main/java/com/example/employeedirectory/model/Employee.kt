@@ -1,10 +1,11 @@
 package com.example.employeedirectory.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class EmployeeList(
-    val items: List<Employee> = listOf()
+    val employees: List<Employee> = listOf()
 )
 
 @Serializable
@@ -23,8 +24,11 @@ data class Employee (
     }
      */
     val uuid: String = "",
+    @SerialName("full_name")
     val fullName: String = "",
+    @SerialName("phone_number")
     val phoneNumber: String = "",
-    val email: String = "",
-    val bio: String = "",
+    @SerialName("email_address")
+    val emailAddress: String = "",
+    val biography: String = "",
 )
