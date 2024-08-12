@@ -116,7 +116,7 @@ fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
         .build()
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .padding(8.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -156,7 +156,7 @@ fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = employee.phoneNumber.toString(),
+                    text = formatPhoneNumber(employee.phoneNumber.toString()),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Start
@@ -240,6 +240,14 @@ fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
         Button(onClick = { retryAction() }) {
             Text(stringResource(R.string.retry))
         }
+    }
+}
+
+fun formatPhoneNumber(phoneNumber: String): String {
+    return if (phoneNumber.length == 10) {
+        "${phoneNumber.substring(0, 3)}-${phoneNumber.substring(3, 6)}-${phoneNumber.substring(6)}"
+    } else {
+        phoneNumber
     }
 }
 
