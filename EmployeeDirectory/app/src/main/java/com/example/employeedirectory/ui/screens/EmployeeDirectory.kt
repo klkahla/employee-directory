@@ -1,8 +1,10 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.example.employeedirectory.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,6 +19,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,13 +33,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,14 +54,12 @@ import com.example.employeedirectory.model.Employee
 import com.example.employeedirectory.ui.theme.EmployeeDirectoryTheme
 import kotlinx.coroutines.Dispatchers
 
-/**
- * TODO List:
- *      2. Add UI/UX to refresh the list of employees
- */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeDirectory(modifier: Modifier = Modifier) {
+    val employeeViewModel: EmployeeViewModel = viewModel(factory = EmployeeViewModel.Factory)
+    val isRefreshing = employeeViewModel.isRefreshing.collectAsState()
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -75,21 +79,20 @@ fun EmployeeDirectory(modifier: Modifier = Modifier) {
                 .padding(it),
             color = MaterialTheme.colorScheme.background
         ) {
-            val employeeViewModel: EmployeeViewModel = viewModel(factory = EmployeeViewModel.Factory)
             EmployeeList(
                 employeeUIState = employeeViewModel.employeeUIState,
-                retryAction = employeeViewModel::getEmployees
+                retryAction = employeeViewModel::getEmployees,
+                isRefreshing = isRefreshing.value
             )
         }
     }
 }
 
 @Composable
-fun EmployeeList(employeeUIState: EmployeeUIState, retryAction: () -> Unit, modifier: Modifier = Modifier) {
+fun EmployeeList(employeeUIState: EmployeeUIState, retryAction: () -> Unit, isRefreshing: Boolean, modifier: Modifier = Modifier) {
     when(employeeUIState) {
         is EmployeeUIState.Error -> ErrorScreen(retryAction)
-        is EmployeeUIState.Loading -> LoadingScreen()
-        is EmployeeUIState.Success -> ResultScreen(employeeUIState.employeeList)
+        is EmployeeUIState.Success -> ResultScreen(employeeUIState.employeeList, isRefreshing, retryAction)
         is EmployeeUIState.Empty -> EmptyScreen()
     }
 }
@@ -171,20 +174,39 @@ fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ResultScreen(employees: List<Employee>, modifier: Modifier = Modifier) {
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        contentPadding = PaddingValues(dimensionResource(R.dimen.padding_medium))
+fun ResultScreen(
+    employees: List<Employee>,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = onRefresh
+    )
+    Box(
+        modifier = modifier.pullRefresh(pullRefreshState)
     ) {
-        items(
-            items = employees,
-            key = { employee ->
-                employee.uuid
+        LazyColumn(
+            modifier = modifier,
+            verticalArrangement = Arrangement.spacedBy(24.dp),
+            contentPadding = PaddingValues(dimensionResource(R.dimen.padding_medium))
+        ) {
+            items(
+                items = employees,
+                key = { employee ->
+                    employee.uuid
+                }
+            ) { employee ->
+                EmployeeCard(employee = employee, modifier = Modifier.fillMaxSize())
             }
-        ) { employee ->
-            EmployeeCard(employee = employee, modifier = Modifier.fillMaxSize())
         }
+
+        PullRefreshIndicator(
+            refreshing = isRefreshing,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
@@ -218,26 +240,6 @@ fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
         Button(onClick = { retryAction() }) {
             Text(stringResource(R.string.retry))
         }
-    }
-}
-
-@Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
-    Image(
-        modifier = modifier,
-        painter = painterResource(R.drawable.loading_img),
-        contentDescription = stringResource(R.string.loading)
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoadingScreenPreview() {
-    EmployeeDirectoryTheme {
-        LoadingScreen(
-            Modifier
-                .fillMaxSize()
-                .size(200.dp))
     }
 }
 
@@ -276,6 +278,6 @@ fun ResultScreenPreview() {
                         "                        \" ex ea commodo consequat."
             )
         }
-        ResultScreen(mockData, Modifier.fillMaxSize())
+        ResultScreen(mockData, false, {}, Modifier.fillMaxSize())
     }
 }

@@ -11,6 +11,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.employeedirectory.EmployeeApplication
 import com.example.employeedirectory.data.EmployeeRepository
 import com.example.employeedirectory.model.Employee
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -19,13 +21,14 @@ sealed interface EmployeeUIState {
     data class Success(val employeeList: List<Employee>) : EmployeeUIState
     object Empty : EmployeeUIState
     object Error : EmployeeUIState
-    object Loading : EmployeeUIState
 }
 
 class EmployeeViewModel(private val employeeRepository: EmployeeRepository) : ViewModel() {
-
-    var employeeUIState: EmployeeUIState by mutableStateOf(EmployeeUIState.Loading)
+    var employeeUIState: EmployeeUIState by mutableStateOf(EmployeeUIState.Empty)
         private set
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     init {
         getEmployees()
@@ -33,7 +36,7 @@ class EmployeeViewModel(private val employeeRepository: EmployeeRepository) : Vi
 
     fun getEmployees() {
         viewModelScope.launch {
-            employeeUIState = EmployeeUIState.Loading
+            _isRefreshing.value = true
             employeeUIState = try {
                 val employees = employeeRepository.getEmployees()
                 if (employees.isEmpty()) {
@@ -46,6 +49,7 @@ class EmployeeViewModel(private val employeeRepository: EmployeeRepository) : Vi
             } catch (e: HttpException) {
                 EmployeeUIState.Error
             }
+            _isRefreshing.value = false
         }
     }
 
