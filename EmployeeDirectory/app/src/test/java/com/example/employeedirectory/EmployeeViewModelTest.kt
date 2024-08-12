@@ -1,6 +1,5 @@
 package com.example.employeedirectory
 
-import androidx.lifecycle.Observer
 import com.example.employeedirectory.data.EmployeeRepository
 import com.example.employeedirectory.fake.FakeDataSource
 import com.example.employeedirectory.fake.FakeEmployeeRepository
@@ -12,9 +11,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
-import java.io.IOException
 
 class EmployeeViewModelTest {
     @get:Rule

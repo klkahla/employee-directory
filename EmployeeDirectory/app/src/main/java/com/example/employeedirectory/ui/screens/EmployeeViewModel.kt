@@ -14,13 +14,11 @@ import com.example.employeedirectory.model.Employee
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 
 sealed interface EmployeeUIState {
     data class Success(val employeeList: List<Employee>) : EmployeeUIState
-    object Empty : EmployeeUIState
-    object Error : EmployeeUIState
+    data object Empty : EmployeeUIState
+    data object Error : EmployeeUIState
 }
 
 class EmployeeViewModel(private val employeeRepository: EmployeeRepository) : ViewModel() {
