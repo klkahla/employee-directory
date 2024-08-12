@@ -38,4 +38,14 @@ class EmployeeViewModelTest {
         employeeViewModel.getEmployees()
         assertEquals(EmployeeUIState.Error, employeeViewModel.employeeUIState)
     }
+
+    @Test
+    fun `getEmployees should update employeeUIState with empty state`() = runTest {
+        val employeeRepository = mock(EmployeeRepository::class.java)
+        `when`(employeeRepository.getEmployees()).thenReturn(emptyList())
+
+        val employeeViewModel = EmployeeViewModel(employeeRepository)
+        employeeViewModel.getEmployees()
+        assertEquals(EmployeeUIState.Empty, employeeViewModel.employeeUIState)
+    }
 }
