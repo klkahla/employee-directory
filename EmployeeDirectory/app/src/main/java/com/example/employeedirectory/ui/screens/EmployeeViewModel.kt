@@ -44,9 +44,7 @@ class EmployeeViewModel(private val employeeRepository: EmployeeRepository) : Vi
                 } else {
                     EmployeeUIState.Success(employees)
                 }
-            } catch (e: IOException) {
-                EmployeeUIState.Error
-            } catch (e: HttpException) {
+            } catch (e: Exception) {
                 EmployeeUIState.Error
             }
             _isRefreshing.value = false

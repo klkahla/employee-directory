@@ -1,5 +1,7 @@
 package com.example.employeedirectory
 
+import androidx.lifecycle.Observer
+import com.example.employeedirectory.data.EmployeeRepository
 import com.example.employeedirectory.fake.FakeDataSource
 import com.example.employeedirectory.fake.FakeEmployeeRepository
 import com.example.employeedirectory.rules.TestDispatcherRule
@@ -9,6 +11,10 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.`when`
+import java.io.IOException
 
 class EmployeeViewModelTest {
     @get:Rule
@@ -26,4 +32,13 @@ class EmployeeViewModelTest {
             )
         }
 
+    @Test
+    fun `getEmployees should update employeeUIState with error`() = runTest {
+        val employeeRepository = mock(EmployeeRepository::class.java)
+        `when`(employeeRepository.getEmployees()).thenThrow(RuntimeException("Test exception"))
+
+        val employeeViewModel = EmployeeViewModel(employeeRepository)
+        employeeViewModel.getEmployees()
+        assertEquals(EmployeeUIState.Error, employeeViewModel.employeeUIState)
+    }
 }
