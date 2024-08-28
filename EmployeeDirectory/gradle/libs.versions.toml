@@ -21,8 +21,11 @@ coilCompose = "2.4.0"
 mockitoCore = "5.12.0"
 mockitoKotlin = "3.2.0"
 mockk = "1.13.12"
+roomVersion = "2.6.1"
 
 [libraries]
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion"}
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion"}
 material = { module = "androidx.compose.material:material", version.ref = "material"}
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

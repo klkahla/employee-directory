@@ -1,6 +1,7 @@
 package com.example.employeedirectory
 
 import android.app.Application
+import androidx.compose.ui.platform.LocalContext
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
@@ -14,7 +15,7 @@ class EmployeeApplication : Application(), ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
-        container = DefaultAppContainer()
+        container = DefaultAppContainer(this)
     }
 
     override fun newImageLoader(): ImageLoader {

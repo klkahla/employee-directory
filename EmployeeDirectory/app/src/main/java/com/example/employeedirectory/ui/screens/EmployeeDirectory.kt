@@ -33,6 +33,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +51,7 @@ import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.employeedirectory.R
-import com.example.employeedirectory.model.Employee
+import com.example.employeedirectory.data.Employee
 import com.example.employeedirectory.ui.theme.EmployeeDirectoryTheme
 import kotlinx.coroutines.Dispatchers
 
@@ -59,6 +60,11 @@ import kotlinx.coroutines.Dispatchers
 fun EmployeeDirectory(modifier: Modifier = Modifier) {
     val employeeViewModel: EmployeeViewModel = viewModel(factory = EmployeeViewModel.Factory)
     val isRefreshing = employeeViewModel.isRefreshing.collectAsState()
+
+    LaunchedEffect(Unit) {
+        employeeViewModel.getEmployeesFromNetwork()
+    }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -189,13 +195,13 @@ fun ResultScreen(
     ) {
         LazyColumn(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             contentPadding = PaddingValues(dimensionResource(R.dimen.padding_medium))
         ) {
             items(
                 items = employees,
                 key = { employee ->
-                    employee.uuid
+                    employee.uid
                 }
             ) { employee ->
                 EmployeeCard(employee = employee, modifier = Modifier.fillMaxSize())
@@ -274,18 +280,18 @@ fun EmptyScreenPreview() {
 fun ResultScreenPreview() {
     EmployeeDirectoryTheme {
         val mockData = List(10) {
-            Employee(
-                "$it",
-                "Lorem ipsum - $it",
-                "208-308-3838",
-                team = "Customer Support",
-                emailAddress = "katykahla@gmail.com",
-                biography = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\" +\n" +
-                        "                        \" eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad\" +\n" +
-                        "                        \" minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip\" +\n" +
-                        "                        \" ex ea commodo consequat."
-            )
+//            Employee(
+//                "$it",
+//                "Lorem ipsum - $it",
+//                "208-308-3838",
+//                team = "Customer Support",
+//                emailAddress = "katykahla@gmail.com",
+//                biography = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do\" +\n" +
+//                        "                        \" eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad\" +\n" +
+//                        "                        \" minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip\" +\n" +
+//                        "                        \" ex ea commodo consequat."
+//            )
         }
-        ResultScreen(mockData, false, {}, Modifier.fillMaxSize())
+        ResultScreen(emptyList(), false, {}, Modifier.fillMaxSize())
     }
 }
