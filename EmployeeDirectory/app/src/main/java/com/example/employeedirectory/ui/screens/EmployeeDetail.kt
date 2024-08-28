@@ -49,7 +49,6 @@ fun EmployeeDetail(employee: Employee, modifier: Modifier = Modifier) {
     val listener = object : ImageRequest.Listener {
         override fun onStart(request: ImageRequest) {
             super.onStart(request)
-            println("onStart: ImageRequest")
             isRefreshing = true
         }
 
@@ -69,7 +68,7 @@ fun EmployeeDetail(employee: Employee, modifier: Modifier = Modifier) {
         }
     }
     val imageRequest = ImageRequest.Builder(LocalContext.current)
-        .data("https://www.google.com")
+        .data(employee.photoURLLg)
         .listener(listener)
         .dispatcher(Dispatchers.IO)
         .memoryCacheKey(employee.photoURLLg)
