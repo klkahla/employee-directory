@@ -10,13 +10,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.employeedirectory.EmployeeApplication
 import com.example.employeedirectory.data.EmployeeRepository
-import com.example.employeedirectory.data.Employee
-import kotlinx.coroutines.Dispatchers
+import com.example.employeedirectory.model.Employee
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.Dispatcher
 
 sealed interface EmployeeUIState {
     data class Success(val employeeList: List<Employee>) : EmployeeUIState
@@ -39,29 +36,16 @@ class EmployeeViewModel(private val employeeRepository: EmployeeRepository) : Vi
         viewModelScope.launch {
             _isRefreshing.value = true
             employeeUIState = try {
-                withContext(Dispatchers.IO) {
-                    val employees = employeeRepository.getEmployeesFromDatabase()
-                    if (employees.isEmpty()) {
-                        EmployeeUIState.Empty
-                    } else {
-                        EmployeeUIState.Success(employees)
-                    }
+                val employees = employeeRepository.getEmployees()
+                if (employees.isEmpty()) {
+                    EmployeeUIState.Empty
+                } else {
+                    EmployeeUIState.Success(employees)
                 }
             } catch (e: Exception) {
-                println("exception $e")
                 EmployeeUIState.Error
             }
             _isRefreshing.value = false
-        }
-    }
-
-    fun getEmployeesFromNetwork() {
-        viewModelScope.launch {
-            val employees = employeeRepository.getEmployeesFromNetwork()
-            withContext(Dispatchers.IO) {
-                // Persist to the db
-                employeeRepository.saveEmployees(employees)
-            }
         }
     }
 

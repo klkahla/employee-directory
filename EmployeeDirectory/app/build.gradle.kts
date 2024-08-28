@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.serialization)
-    kotlin("kapt")
 }
 
 android {
@@ -69,8 +68,6 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.material)
     implementation(libs.coil.compose)
-    implementation(libs.room.runtime)
-    kapt(libs.room.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockito.core)
