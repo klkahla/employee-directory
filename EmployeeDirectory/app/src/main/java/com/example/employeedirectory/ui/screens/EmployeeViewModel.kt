@@ -49,6 +49,14 @@ class EmployeeViewModel(private val employeeRepository: EmployeeRepository) : Vi
         }
     }
 
+    fun getEmployeeById(employeeId: String): Employee? {
+        return if (employeeUIState is EmployeeUIState.Success) {
+            (employeeUIState as EmployeeUIState.Success).employeeList.find { it.uuid == employeeId }
+        } else {
+            null
+        }
+    }
+
     /**
      * Factory for [EmployeeViewModel] that takes [employeeRepository] as a dependency
      */

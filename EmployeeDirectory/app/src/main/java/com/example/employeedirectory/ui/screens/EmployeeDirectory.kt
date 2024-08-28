@@ -3,6 +3,7 @@
 package com.example.employeedirectory.ui.screens
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -27,6 +30,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -34,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +52,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -57,6 +67,10 @@ import kotlinx.coroutines.Dispatchers
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeDirectory(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val showBackButton = currentBackStackEntry?.destination?.route != "employeeDirectory"
+
     val employeeViewModel: EmployeeViewModel = viewModel(factory = EmployeeViewModel.Factory)
     val isRefreshing = employeeViewModel.isRefreshing.collectAsState()
 
@@ -69,7 +83,14 @@ fun EmployeeDirectory(modifier: Modifier = Modifier) {
                         stringResource(R.string.app_name),
                         style = MaterialTheme.typography.headlineMedium
                     )
-                }
+                },
+                navigationIcon = {
+                    if (showBackButton) {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    }
+                },
             )
         }
     ) {
@@ -79,26 +100,53 @@ fun EmployeeDirectory(modifier: Modifier = Modifier) {
                 .padding(it),
             color = MaterialTheme.colorScheme.background
         ) {
-            EmployeeList(
-                employeeUIState = employeeViewModel.employeeUIState,
-                retryAction = employeeViewModel::getEmployees,
-                isRefreshing = isRefreshing.value
-            )
+            NavHost(navController = navController, startDestination = "employeeDirectory") {
+                composable("employeeDirectory") {
+                    EmployeeList(
+                        employeeUIState = employeeViewModel.employeeUIState,
+                        retryAction = employeeViewModel::getEmployees,
+                        isRefreshing = isRefreshing.value,
+                        onEmployeeClick = { employeeId ->
+                             navController.navigate("employeeDetail/$employeeId")
+                        }
+                    )
+                }
+                composable("employeeDetail/{employeeId}") { backStackEntry ->
+                    val employeeId = backStackEntry.arguments?.getString("employeeId", "-1").toString()
+                    val employee = employeeViewModel.getEmployeeById(employeeId)
+                    if (employee != null) {
+                        EmployeeDetail(
+                            employee = employee
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-fun EmployeeList(employeeUIState: EmployeeUIState, retryAction: () -> Unit, isRefreshing: Boolean, modifier: Modifier = Modifier) {
+fun EmployeeList(
+    employeeUIState: EmployeeUIState,
+    retryAction: () -> Unit,
+    isRefreshing: Boolean,
+    onEmployeeClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     when(employeeUIState) {
         is EmployeeUIState.Error -> ErrorScreen(retryAction)
-        is EmployeeUIState.Success -> ResultScreen(employeeUIState.employeeList, isRefreshing, retryAction)
+        is EmployeeUIState.Success -> ResultScreen(employeeUIState.employeeList, isRefreshing, retryAction, onEmployeeClick)
         is EmployeeUIState.Empty -> EmptyScreen()
+        else  -> print("else")
     }
 }
 
 @Composable
-fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
+fun EmployeeCard(
+    employee: Employee,
+    onEmployeeClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     // Build an ImageRequest with Coil
     val listener = object : ImageRequest.Listener {
     }
@@ -118,7 +166,8 @@ fun EmployeeCard(employee: Employee, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .padding(8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onEmployeeClick(employee.uuid) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -178,6 +227,7 @@ fun ResultScreen(
     employees: List<Employee>,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
+    onEmployeeClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val pullRefreshState = rememberPullRefreshState(
@@ -198,7 +248,7 @@ fun ResultScreen(
                     employee.uuid
                 }
             ) { employee ->
-                EmployeeCard(employee = employee, modifier = Modifier.fillMaxSize())
+                EmployeeCard(employee = employee, onEmployeeClick, modifier = Modifier.fillMaxSize())
             }
         }
 
@@ -286,6 +336,6 @@ fun ResultScreenPreview() {
                         "                        \" ex ea commodo consequat."
             )
         }
-        ResultScreen(mockData, false, {}, Modifier.fillMaxSize())
+        ResultScreen(mockData, false, {}, {}, Modifier.fillMaxSize())
     }
 }
